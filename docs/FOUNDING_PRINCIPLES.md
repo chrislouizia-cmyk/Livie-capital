@@ -15,6 +15,8 @@ Build a global investment firm that creates opportunity through transparency, ed
 
 Generate approximately 17% annualized net returns over the long term while prioritizing capital preservation and consistency over return maximization.
 
+Livie Capital's base reporting currency is USD.
+
 ## Core Belief
 
 The best way to create wealth is to protect it.

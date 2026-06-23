@@ -13,7 +13,7 @@ create table portfolio_snapshots (
   id uuid primary key default gen_random_uuid(),
   snapshot_date date not null,
   nav numeric(20, 4) not null check (nav >= 0),
-  currency currency_code not null default 'MXN',
+  currency currency_code not null default 'USD',
   daily_pnl numeric(20, 4) not null default 0,
   total_return_percent numeric(12, 6) not null default 0,
   risk_reserve_percent numeric(12, 6) not null default 0 check (

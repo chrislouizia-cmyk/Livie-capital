@@ -1,14 +1,6 @@
-"use client";
-
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import EquityChartClient from "@/app/components/EquityChartClient";
 import type { PortfolioSnapshotRow } from "@/lib/dashboard/data";
+import { getPortfolioSnapshots } from "@/lib/supabase/queries";
 
 type EquityChartPoint = {
   day: string;
@@ -50,13 +42,17 @@ export function EquityChartLoading() {
   );
 }
 
-export default function EquityChart({
-  snapshots,
-  errorMessage,
-}: {
-  snapshots: PortfolioSnapshotRow[];
-  errorMessage?: string | null;
-}) {
+export default async function EquityChart() {
+  let snapshots: PortfolioSnapshotRow[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    snapshots = (await getPortfolioSnapshots()) as PortfolioSnapshotRow[];
+  } catch (error) {
+    errorMessage =
+      error instanceof Error ? error.message : "Unable to load equity curve.";
+  }
+
   if (errorMessage) {
     return (
       <div className="flex h-72 w-full items-center justify-center text-sm leading-6 text-zinc-400">
@@ -73,22 +69,5 @@ export default function EquityChart({
     );
   }
 
-  return (
-    <div className="h-72 w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={buildChartData(snapshots)}>
-          <XAxis dataKey="day" />
-          <YAxis />
-
-          <Tooltip />
-
-          <Line
-            type="monotone"
-            dataKey="value"
-            strokeWidth={3}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
+  return <EquityChartClient data={buildChartData(snapshots)} />;
 }

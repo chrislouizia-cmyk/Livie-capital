@@ -1,5 +1,6 @@
 import { Download, FileText } from "lucide-react";
 import type { ReportRow } from "@/lib/dashboard/data";
+import { getReports } from "@/lib/supabase/queries";
 
 function formatReportDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -59,13 +60,17 @@ export function ReportsLoading() {
   );
 }
 
-export default function Reports({
-  reports,
-  errorMessage,
-}: {
-  reports: ReportRow[];
-  errorMessage?: string | null;
-}) {
+export default async function Reports() {
+  let reports: ReportRow[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    reports = (await getReports()) as ReportRow[];
+  } catch (error) {
+    errorMessage =
+      error instanceof Error ? error.message : "Unable to load reports.";
+  }
+
   return (
     <section className="rounded-lg border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">
       <div className="flex flex-col gap-4 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">

@@ -26,11 +26,11 @@ export const positions: Position[] = [
     currentPrice: 57.42,
     stopLoss: 53.8,
     takeProfit: 61,
-    currency: "MXN",
+    currency: "USD",
     riskPerTradePercent: 0.42,
   },
   {
-    asset: "MXN/USD",
+    asset: "GBPUSD",
     direction: "Short",
     quantity: 0.2,
     entryPrice: 18.51,

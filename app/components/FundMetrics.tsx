@@ -1,8 +1,14 @@
 import type {
   PerformanceMetricRow,
-  PortfolioSnapshotRow,
-  TradeRow,
 } from "@/lib/dashboard/data";
+import {
+  calculateMaximumDrawdown,
+  calculateRiskPerTrade,
+  calculateSharpeRatio,
+  calculateTotalReturn,
+  calculateWinRate,
+} from "@/lib/performance";
+import { getPerformanceMetrics } from "@/lib/supabase/queries";
 
 function formatPercent(value: number): string {
   return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
@@ -49,53 +55,74 @@ function formatMetricValue(metric: PerformanceMetricRow): string {
   return toNumber(metric.value).toLocaleString("en-US");
 }
 
-function buildMetricContext(
-  metric: PerformanceMetricRow,
-  snapshot: PortfolioSnapshotRow,
-  trades: TradeRow[],
-): string | null {
-  if (metric.label === "Win Rate") {
-    const filledTrades = trades.filter((trade) => trade.status === "Filled");
-    return `${filledTrades.length} filled trades`;
-  }
-
-  if (metric.label === "Total Return") {
-    return `Snapshot ${snapshot.snapshot_date}`;
-  }
-
-  return metric.context;
+function createCalculatedMetric(
+  label: string,
+  value: number,
+  context: string,
+  format: PerformanceMetricRow["format"] = "percent",
+): PerformanceMetricRow {
+  return {
+    id: `calculated-${label.toLowerCase().replaceAll(" ", "-")}`,
+    label,
+    value,
+    context,
+    format,
+  };
 }
 
-function buildMetrics(
-  snapshot: PortfolioSnapshotRow,
-  performanceMetrics: PerformanceMetricRow[],
-  trades: TradeRow[],
-): PerformanceMetricRow[] {
-  const totalReturnMetric = performanceMetrics.find(
-    (metric) => metric.label === "Total Return",
-  ) ?? {
-    id: `${snapshot.id}-total-return`,
-    label: "Total Return",
-    value: snapshot.total_return_percent,
-    context: `Snapshot ${snapshot.snapshot_date}`,
-    format: "percent" as const,
-  };
+function getCalculatedMetric(label: string): PerformanceMetricRow | null {
+  if (label === "Total Return") {
+    return createCalculatedMetric(
+      "Total Return",
+      calculateTotalReturn(),
+      "Calculated from equity curve",
+    );
+  }
+
+  if (label === "Drawdown") {
+    return createCalculatedMetric(
+      "Drawdown",
+      calculateMaximumDrawdown(),
+      "Calculated maximum drawdown",
+    );
+  }
+
+  if (label === "Win Rate") {
+    return createCalculatedMetric(
+      "Win Rate",
+      calculateWinRate(),
+      "Calculated from positions",
+    );
+  }
+
+  if (label === "Sharpe Ratio") {
+    return createCalculatedMetric(
+      "Sharpe Ratio",
+      calculateSharpeRatio(),
+      "Calculated risk adjusted return",
+      "ratio",
+    );
+  }
+
+  if (label === "Risk per Trade") {
+    return createCalculatedMetric(
+      "Risk per Trade",
+      calculateRiskPerTrade(),
+      "Calculated average risk",
+    );
+  }
+
+  return null;
+}
+
+function buildMetrics(performanceMetrics: PerformanceMetricRow[]) {
+  const metricsByLabel = new Map(
+    performanceMetrics.map((metric) => [metric.label, metric]),
+  );
 
   return metricOrder
     .map((label) => {
-      const metric =
-        label === "Total Return"
-          ? totalReturnMetric
-          : performanceMetrics.find((item) => item.label === label);
-
-      if (!metric) {
-        return null;
-      }
-
-      return {
-        ...metric,
-        context: buildMetricContext(metric, snapshot, trades),
-      };
+      return metricsByLabel.get(label) ?? getCalculatedMetric(label);
     })
     .filter((metric): metric is PerformanceMetricRow => Boolean(metric));
 }
@@ -133,20 +160,19 @@ export function FundMetricsLoading() {
   );
 }
 
-export default function FundMetrics({
-  portfolioSnapshot,
-  performanceMetrics,
-  trades,
-  errorMessage,
-}: {
-  portfolioSnapshot: PortfolioSnapshotRow | null;
-  performanceMetrics: PerformanceMetricRow[];
-  trades: TradeRow[];
-  errorMessage?: string | null;
-}) {
-  const metrics = portfolioSnapshot
-    ? buildMetrics(portfolioSnapshot, performanceMetrics, trades)
-    : [];
+export default async function FundMetrics() {
+  let performanceMetrics: PerformanceMetricRow[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    performanceMetrics =
+      (await getPerformanceMetrics()) as PerformanceMetricRow[];
+  } catch (error) {
+    errorMessage =
+      error instanceof Error ? error.message : "Unable to load fund metrics.";
+  }
+
+  const metrics = buildMetrics(performanceMetrics);
 
   return (
     <section className="rounded-lg border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">

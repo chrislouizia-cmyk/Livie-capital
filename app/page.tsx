@@ -1,13 +1,18 @@
+import { Suspense } from "react";
 import AssetAllocation from "@/app/components/AssetAllocation";
 import DashboardLayout from "@/app/components/DashboardLayout";
 import EquityChart from "@/app/components/EquityChart";
+import { EquityChartLoading } from "@/app/components/EquityChart";
 import FundMetrics from "@/app/components/FundMetrics";
+import { FundMetricsLoading } from "@/app/components/FundMetrics";
 import InvestmentStrategy from "@/app/components/InvestmentStrategy";
 import OpenPositions from "@/app/components/OpenPositions";
 import PerformanceHistory from "@/app/components/PerformanceHistory";
 import PortfolioOverview from "@/app/components/PortfolioOverview";
 import Reports from "@/app/components/Reports";
+import { ReportsLoading } from "@/app/components/Reports";
 import TradesTable from "@/app/components/TradesTable";
+import { TradesTableLoading } from "@/app/components/TradesTable";
 import { marketTape } from "@/data/portfolio";
 import { getDashboardData } from "@/lib/dashboard/data";
 
@@ -24,9 +29,27 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
+function calculateSnapshotReturn(
+  snapshots: { nav: number | string }[],
+): number {
+  const firstSnapshot = snapshots.at(0);
+  const latestSnapshot = snapshots.at(-1);
+  const firstValue = toNumber(firstSnapshot?.nav);
+  const latestValue = toNumber(latestSnapshot?.nav);
+
+  if (firstValue === 0) {
+    return 0;
+  }
+
+  return ((latestValue - firstValue) / firstValue) * 100;
+}
+
 export default async function Home() {
   const dashboardData = await getDashboardData();
   const latestSnapshot = dashboardData.latestSnapshot;
+  const equityCurveReturn = calculateSnapshotReturn(
+    dashboardData.portfolioSnapshots,
+  );
   const dailyReturn =
     latestSnapshot && toNumber(latestSnapshot.nav) !== 0
       ? (toNumber(latestSnapshot.daily_pnl) / toNumber(latestSnapshot.nav)) *
@@ -45,8 +68,8 @@ export default async function Home() {
       tone: "text-emerald-300",
     },
     {
-      label: "MXN",
-      value: toNumber(latestSnapshot?.mxn_usd).toFixed(2),
+      label: "Base",
+      value: latestSnapshot?.currency ?? "USD",
       tone: "text-white",
     },
   ];
@@ -114,13 +137,14 @@ export default async function Home() {
                   Equity Curve
                 </h2>
               </div>
-              <p className="font-mono text-sm text-emerald-300">+70.0%</p>
+              <p className="font-mono text-sm text-emerald-300">
+                {formatSignedPercent(equityCurveReturn)}
+              </p>
             </div>
 
-            <EquityChart
-              snapshots={dashboardData.portfolioSnapshots}
-              errorMessage={dashboardData.errors.portfolioSnapshots}
-            />
+            <Suspense fallback={<EquityChartLoading />}>
+              <EquityChart />
+            </Suspense>
           </section>
 
           <AssetAllocation
@@ -130,20 +154,12 @@ export default async function Home() {
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-          <FundMetrics
-            portfolioSnapshot={dashboardData.latestSnapshot}
-            performanceMetrics={dashboardData.performanceMetrics}
-            trades={dashboardData.trades}
-            errorMessage={
-              dashboardData.errors.portfolioSnapshots ??
-              dashboardData.errors.performanceMetrics ??
-              dashboardData.errors.trades
-            }
-          />
-          <TradesTable
-            trades={dashboardData.trades}
-            errorMessage={dashboardData.errors.trades}
-          />
+          <Suspense fallback={<FundMetricsLoading />}>
+            <FundMetrics />
+          </Suspense>
+          <Suspense fallback={<TradesTableLoading />}>
+            <TradesTable />
+          </Suspense>
         </div>
 
         <div id="positions" className="scroll-mt-6">
@@ -165,11 +181,16 @@ export default async function Home() {
         </div>
 
         <div id="reports" className="scroll-mt-6">
-          <Reports
-            reports={dashboardData.reports}
-            errorMessage={dashboardData.errors.reports}
-          />
+          <Suspense fallback={<ReportsLoading />}>
+            <Reports />
+          </Suspense>
         </div>
+
+        <footer className="border-t border-white/[0.06] py-6 text-center text-xs leading-6 text-zinc-600">
+          <p>Chris Louizia</p>
+          <p>chrislouizia@gmail.com</p>
+          <p className="mt-2">© 2026 Livie Capital. All rights reserved.</p>
+        </footer>
       </div>
     </DashboardLayout>
   );

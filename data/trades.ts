@@ -19,7 +19,7 @@ export const trades: Trade[] = [
   },
   {
     time: "11:46",
-    symbol: "MXN/USD",
+    symbol: "GBPUSD",
     side: "Hedge",
     quantity: 0.2,
     quantityLabel: "20%",

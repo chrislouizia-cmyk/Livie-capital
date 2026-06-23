@@ -1,11 +1,12 @@
 import type { TradeRow } from "@/lib/dashboard/data";
+import { getTrades } from "@/lib/supabase/queries";
 
 function formatQuantity(quantity: number): string {
   return new Intl.NumberFormat("en-US").format(quantity);
 }
 
 function formatPrice(price: number, symbol: string): string {
-  if (symbol === "MXN/USD") {
+  if (symbol === "GBPUSD") {
     return price.toFixed(2);
   }
 
@@ -26,7 +27,7 @@ function formatTradeTime(value: string): string {
 }
 
 function formatTradeQuantity(quantity: number, symbol: string): string {
-  if (symbol === "MXN/USD" || symbol === "CETES") {
+  if (symbol === "GBPUSD" || symbol === "CETES") {
     return `${(quantity * 100).toFixed(0)}%`;
   }
 
@@ -88,13 +89,17 @@ export function TradesTableLoading() {
   );
 }
 
-export default function TradesTable({
-  trades,
-  errorMessage,
-}: {
-  trades: TradeRow[];
-  errorMessage?: string | null;
-}) {
+export default async function TradesTable() {
+  let trades: TradeRow[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    trades = (await getTrades()) as TradeRow[];
+  } catch (error) {
+    errorMessage =
+      error instanceof Error ? error.message : "Unable to load trades.";
+  }
+
   return (
     <section className="rounded-lg border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">
       <div className="flex items-start justify-between gap-4">

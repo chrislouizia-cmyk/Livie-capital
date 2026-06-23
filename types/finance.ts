@@ -1,4 +1,4 @@
-export type CurrencyCode = "MXN" | "USD";
+export type CurrencyCode = "USD";
 
 export type PositionDirection = "Long" | "Short";
 
@@ -22,7 +22,9 @@ export type PortfolioSnapshot = {
   deployedCapitalPercent: number;
   grossExposure: number;
   netExposure: number;
-  mxnUsd: number;
+  usdFxRate: number;
+  cashBalance?: number;
+  notes?: string;
 };
 
 export type Asset = {
@@ -54,7 +56,12 @@ export type Trade = {
   quantity: number;
   quantityLabel?: string;
   price: number;
+  exitPrice?: number;
+  stopLoss?: number;
+  takeProfit?: number;
+  realizedPnl?: number;
   priceLabel?: string;
+  notes?: string;
   status: TradeStatus;
 };
 

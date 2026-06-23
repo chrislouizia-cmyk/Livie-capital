@@ -1,7 +1,7 @@
 import type { PositionRow } from "@/lib/dashboard/data";
 
 function formatPrice(value: number, asset: string): string {
-  if (asset === "MXN/USD") {
+  if (asset === "GBPUSD") {
     return value.toFixed(2);
   }
 

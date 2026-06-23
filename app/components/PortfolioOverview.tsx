@@ -13,13 +13,13 @@ type PortfolioMetric = {
 };
 
 function formatCompactCurrency(value: number): string {
-  return `$${(value / 1000000).toFixed(2)}M MXN`;
+  return `$${(value / 1000000).toFixed(2)}M USD`;
 }
 
 function formatSignedCompactCurrency(value: number): string {
   const sign = value >= 0 ? "+" : "-";
 
-  return `${sign}$${(Math.abs(value) / 1000).toFixed(0)}K MXN`;
+  return `${sign}$${(Math.abs(value) / 1000).toFixed(0)}K USD`;
 }
 
 function formatSignedPercent(value: number): string {

@@ -31,6 +31,22 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
+function getMetricValue(metrics: PerformanceMetricRow[], label: string): number {
+  const metric = metrics.find((item) => item.label === label);
+  return toNumber(metric?.value);
+}
+
+function formatSignedPercent(value: number): string {
+  return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
+function calculateAlpha(performanceMetrics: PerformanceMetricRow[]): number {
+  const totalReturn = getMetricValue(performanceMetrics, "Total Return");
+  const riskPerTrade = getMetricValue(performanceMetrics, "Risk per Trade");
+
+  return totalReturn - riskPerTrade;
+}
+
 export default function PerformanceHistory({
   performanceMetrics,
   errorMessage,
@@ -38,6 +54,8 @@ export default function PerformanceHistory({
   performanceMetrics: PerformanceMetricRow[];
   errorMessage?: string | null;
 }) {
+  const alpha = calculateAlpha(performanceMetrics);
+
   return (
     <section className="rounded-lg border border-white/10 bg-zinc-950/80 p-6 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">
       <div className="flex flex-col gap-4 border-b border-white/10 pb-6 lg:flex-row lg:items-end lg:justify-between">
@@ -52,11 +70,13 @@ export default function PerformanceHistory({
         <div className="grid grid-cols-2 gap-2 font-mono text-xs">
           <div className="rounded-md border border-white/10 bg-black/30 px-3 py-2">
             <p className="text-zinc-600">Base</p>
-            <p className="mt-1 text-white">MXN</p>
+            <p className="mt-1 text-white">USD</p>
           </div>
           <div className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-2">
             <p className="text-emerald-100/60">Alpha</p>
-            <p className="mt-1 text-emerald-300">+6.3%</p>
+            <p className="mt-1 text-emerald-300">
+              {formatSignedPercent(alpha)}
+            </p>
           </div>
         </div>
       </div>

@@ -67,7 +67,6 @@ type DashboardErrors = Partial<
     | "assets"
     | "positions"
     | "trades"
-    | "reports"
     | "performanceMetrics",
     string
   >
@@ -79,7 +78,6 @@ export type DashboardData = {
   assets: AssetRow[];
   positions: PositionRow[];
   trades: TradeRow[];
-  reports: ReportRow[];
   performanceMetrics: PerformanceMetricRow[];
   errors: DashboardErrors;
 };
@@ -112,19 +110,17 @@ export async function getDashboardData(): Promise<DashboardData> {
       assets: [],
       positions: [],
       trades: [],
-      reports: [],
       performanceMetrics: [],
       errors,
     };
   }
 
   const snapshotId = latestSnapshot.id;
-  const [assetsResult, positionsResult, tradesResult, reportsResult, metricsResult] =
+  const [assetsResult, positionsResult, tradesResult, metricsResult] =
     await Promise.all([
       supabase.from("assets").select("*").eq("snapshot_id", snapshotId),
       supabase.from("positions").select("*").eq("snapshot_id", snapshotId),
       supabase.from("trades").select("*").eq("snapshot_id", snapshotId),
-      supabase.from("reports").select("*").eq("snapshot_id", snapshotId),
       supabase
         .from("performance_metrics")
         .select("*")
@@ -152,13 +148,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     );
   }
 
-  if (reportsResult.error) {
-    errors.reports = getErrorMessage(
-      reportsResult.error,
-      "Unable to load reports.",
-    );
-  }
-
   if (metricsResult.error) {
     errors.performanceMetrics = getErrorMessage(
       metricsResult.error,
@@ -172,7 +161,6 @@ export async function getDashboardData(): Promise<DashboardData> {
     assets: (assetsResult.data ?? []) as AssetRow[],
     positions: (positionsResult.data ?? []) as PositionRow[],
     trades: (tradesResult.data ?? []) as TradeRow[],
-    reports: (reportsResult.data ?? []) as ReportRow[],
     performanceMetrics: (metricsResult.data ?? []) as PerformanceMetricRow[],
     errors,
   };

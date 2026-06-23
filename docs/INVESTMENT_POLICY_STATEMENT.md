@@ -102,6 +102,7 @@ Livie Capital shall maintain reporting standards suitable for institutional revi
 Reports should include:
 
 - Net asset value
+- Base reporting currency in USD
 - Daily, weekly, monthly, and annual performance
 - Open positions
 - Closed trades

@@ -7,14 +7,14 @@ import type {
 
 export const portfolioSnapshot: PortfolioSnapshot = {
   nav: 12480000,
-  currency: "MXN",
+  currency: "USD",
   dailyPnl: 299000,
   totalReturnPercent: 24.8,
   riskReservePercent: 18,
   deployedCapitalPercent: 82,
   grossExposure: 1.18,
   netExposure: 0.82,
-  mxnUsd: 18.44,
+  usdFxRate: 18.44,
 };
 
 export const marketTape = [
@@ -22,7 +22,7 @@ export const marketTape = [
   { label: "+0.41%", tone: "text-emerald-300" },
   { label: "NASDAQ 17,688.8", tone: "" },
   { label: "+0.63%", tone: "text-emerald-300" },
-  { label: "MXN/USD 18.44", tone: "" },
+  { label: "GBPUSD 18.44", tone: "" },
   { label: "-0.12%", tone: "text-amber-300" },
   { label: "UST 10Y 4.28%", tone: "" },
 ];
@@ -34,7 +34,7 @@ export const assetAllocations: Asset[] = [
     region: "US",
     weightPercent: 34,
     marketValue: 4240000,
-    currency: "MXN",
+    currency: "USD",
     colorClass: "bg-emerald-400",
   },
   {
@@ -43,7 +43,7 @@ export const assetAllocations: Asset[] = [
     region: "Mexico",
     weightPercent: 22,
     marketValue: 2750000,
-    currency: "MXN",
+    currency: "USD",
     colorClass: "bg-sky-300",
   },
   {
@@ -52,7 +52,7 @@ export const assetAllocations: Asset[] = [
     region: "Global",
     weightPercent: 18,
     marketValue: 2250000,
-    currency: "MXN",
+    currency: "USD",
     colorClass: "bg-amber-300",
   },
   {
@@ -61,7 +61,7 @@ export const assetAllocations: Asset[] = [
     region: "Mexico",
     weightPercent: 16,
     marketValue: 2000000,
-    currency: "MXN",
+    currency: "USD",
     colorClass: "bg-zinc-300",
   },
   {
@@ -70,7 +70,7 @@ export const assetAllocations: Asset[] = [
     region: "Global",
     weightPercent: 10,
     marketValue: 1240000,
-    currency: "MXN",
+    currency: "USD",
     colorClass: "bg-rose-300",
   },
 ];
@@ -126,7 +126,7 @@ export const strategySections = [
   },
   {
     title: "Markets Covered",
-    copy: "US equities, Mexican equities, FX exposure, sovereign cash instruments, private credit themes, and macro hedges across rate and currency cycles.",
+    copy: "US equities, global equities, FX exposure, sovereign cash instruments, private credit themes, and macro hedges across rate and currency cycles.",
   },
   {
     title: "Trading Approach",

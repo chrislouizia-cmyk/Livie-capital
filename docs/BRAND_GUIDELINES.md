@@ -114,6 +114,7 @@ Principles:
 - Avoid nested cards unless displaying repeated items
 - Use clear section hierarchy: overview, portfolio, performance, positions, strategy, reports
 - Use monospace for all financial values
+- Display portfolio base reporting values in USD
 - Keep interactions predictable and professional
 - Surface risk information close to performance information
 
