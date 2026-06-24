@@ -17,6 +17,8 @@ import { TradesTableLoading } from "@/app/components/TradesTable";
 import { marketTape } from "@/data/portfolio";
 import { getDashboardData } from "@/lib/dashboard/data";
 
+export const dynamic = "force-dynamic";
+
 function formatCompactCurrency(value: number): string {
   return `$${value.toLocaleString("en-US", {
     maximumFractionDigits: 0,
