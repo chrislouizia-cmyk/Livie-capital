@@ -1,8 +1,6 @@
 import { ArrowDownRight, ArrowUpRight, Landmark, ShieldCheck } from "lucide-react";
-import type {
-  PerformanceMetricRow,
-  PortfolioSnapshotRow,
-} from "@/lib/dashboard/data";
+import type { PortfolioSnapshotRow } from "@/lib/dashboard/data";
+import { getLatestPortfolioSnapshot } from "@/lib/supabase/queries";
 
 type PortfolioMetric = {
   label: string;
@@ -12,14 +10,28 @@ type PortfolioMetric = {
   positive: boolean;
 };
 
-function formatCompactCurrency(value: number): string {
-  return `$${(value / 1000000).toFixed(2)}M USD`;
+function getDisplayCurrency(currency: string | null | undefined): "USD" {
+  return currency === "USD" ? "USD" : "USD";
 }
 
-function formatSignedCompactCurrency(value: number): string {
-  const sign = value >= 0 ? "+" : "-";
+function formatCurrency(
+  value: number,
+  currency: string | null | undefined,
+): string {
+  return `$${value.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  })} ${getDisplayCurrency(currency)}`;
+}
 
-  return `${sign}$${(Math.abs(value) / 1000).toFixed(0)}K USD`;
+function formatSignedCurrency(
+  value: number,
+  currency: string | null | undefined,
+): string {
+  const sign = value < 0 ? "-" : "";
+
+  return `${sign}$${Math.abs(value).toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  })} ${getDisplayCurrency(currency)}`;
 }
 
 function formatSignedPercent(value: number): string {
@@ -35,15 +47,6 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function getMetricValue(
-  metrics: PerformanceMetricRow[],
-  label: string,
-  fallback = 0,
-): number {
-  const metric = metrics.find((item) => item.label === label);
-  return metric ? toNumber(metric.value) : fallback;
-}
-
 function calculateDailyReturn(snapshot: PortfolioSnapshotRow): number {
   const nav = toNumber(snapshot.nav);
 
@@ -56,20 +59,14 @@ function calculateDailyReturn(snapshot: PortfolioSnapshotRow): number {
 
 function buildPortfolioMetrics(
   snapshot: PortfolioSnapshotRow,
-  performanceMetrics: PerformanceMetricRow[],
 ): PortfolioMetric[] {
   const dailyReturn = calculateDailyReturn(snapshot);
-  const totalReturn = getMetricValue(
-    performanceMetrics,
-    "Total Return",
-    toNumber(snapshot.total_return_percent),
-  );
-  const drawdown = getMetricValue(performanceMetrics, "Drawdown");
+  const totalReturn = toNumber(snapshot.total_return_percent);
 
   return [
     {
       label: "Net Asset Value",
-      value: formatCompactCurrency(toNumber(snapshot.nav)),
+      value: formatCurrency(toNumber(snapshot.nav), snapshot.currency),
       detail: "Liquid capital base",
       trend: formatSignedPercent(dailyReturn),
       positive: dailyReturn >= 0,
@@ -78,12 +75,15 @@ function buildPortfolioMetrics(
       label: "Total Return",
       value: formatSignedPercent(totalReturn),
       detail: "Since inception",
-      trend: `${formatPercent(Math.abs(drawdown))} DD`,
+      trend: "Latest snapshot",
       positive: totalReturn >= 0,
     },
     {
       label: "Daily P&L",
-      value: formatSignedCompactCurrency(toNumber(snapshot.daily_pnl)),
+      value: formatSignedCurrency(
+        toNumber(snapshot.daily_pnl),
+        snapshot.currency,
+      ),
       detail: "Marked to market",
       trend: formatSignedPercent(dailyReturn),
       positive: toNumber(snapshot.daily_pnl) >= 0,
@@ -126,29 +126,36 @@ export function PortfolioOverviewLoading() {
 
 export default function PortfolioOverview({
   portfolioSnapshot,
-  performanceMetrics,
   errorMessage,
 }: {
   portfolioSnapshot: PortfolioSnapshotRow | null;
-  performanceMetrics: PerformanceMetricRow[];
   errorMessage?: string | null;
 }) {
-  if (errorMessage || !portfolioSnapshot) {
+  if (errorMessage) {
     return (
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-lg border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">
           <p className="text-sm leading-6 text-zinc-400">
-            Portfolio overview is unavailable right now.
+            Portfolio overview is unavailable right now. {errorMessage}
           </p>
         </article>
       </section>
     );
   }
 
-  const portfolioMetrics = buildPortfolioMetrics(
-    portfolioSnapshot,
-    performanceMetrics,
-  );
+  if (!portfolioSnapshot) {
+    return (
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <article className="rounded-lg border border-white/10 bg-zinc-950/80 p-5 shadow-2xl shadow-black/20 ring-1 ring-white/[0.03]">
+          <p className="text-sm leading-6 text-zinc-400">
+            No portfolio snapshot available.
+          </p>
+        </article>
+      </section>
+    );
+  }
+
+  const portfolioMetrics = buildPortfolioMetrics(portfolioSnapshot);
 
   return (
     <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -197,5 +204,31 @@ export default function PortfolioOverview({
         );
       })}
     </section>
+  );
+}
+
+export async function PortfolioOverviewFromSupabase() {
+  let portfolioSnapshot: PortfolioSnapshotRow | null = null;
+  let errorMessage: string | null = null;
+
+  try {
+    portfolioSnapshot =
+      (await getLatestPortfolioSnapshot()) as PortfolioSnapshotRow;
+  } catch (error) {
+    const maybeSupabaseError = error as { code?: string; message?: string };
+
+    if (maybeSupabaseError.code !== "PGRST116") {
+      errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Unable to load portfolio overview.";
+    }
+  }
+
+  return (
+    <PortfolioOverview
+      portfolioSnapshot={portfolioSnapshot}
+      errorMessage={errorMessage}
+    />
   );
 }

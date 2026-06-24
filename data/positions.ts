@@ -37,7 +37,7 @@ export const positions: Position[] = [
     currentPrice: 18.44,
     stopLoss: 18.72,
     takeProfit: 18.1,
-    currency: "FX",
+    currency: "USD",
     riskPerTradePercent: 0.18,
   },
   {

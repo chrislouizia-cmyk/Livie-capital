@@ -9,7 +9,9 @@ const assetColorClasses: Record<string, string> = {
 };
 
 function formatCompactCurrency(value: number): string {
-  return `$${(value / 1000000).toFixed(2)}M`;
+  return `$${value.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  })}`;
 }
 
 function toNumber(value: number | string): number {
@@ -133,7 +135,7 @@ export default function AssetAllocation({
                 <span className="truncate text-zinc-200">{asset.name}</span>
               </div>
               <div className="flex shrink-0 items-center gap-3 font-mono text-xs text-zinc-400">
-                <span>{formatCompactCurrency(marketValue)} {asset.currency}</span>
+                <span>{formatCompactCurrency(marketValue)} USD</span>
                 <span className="text-white">{weightPercent}%</span>
               </div>
             </div>

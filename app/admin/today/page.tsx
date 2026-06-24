@@ -72,14 +72,11 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function formatCurrency(
-  value: number | string | null | undefined,
-  currency = "USD",
-): string {
-  return `${currency} ${toNumber(value).toLocaleString("en-US", {
+function formatCurrency(value: number | string | null | undefined): string {
+  return `$${toNumber(value).toLocaleString("en-US", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
-  })}`;
+  })} USD`;
 }
 
 function formatDate(value: string): string {
@@ -228,7 +225,7 @@ export default async function AdminTodayPage() {
             label="Latest Portfolio Value"
             value={
               latestSnapshot
-                ? formatCurrency(latestSnapshot.nav, latestSnapshot.currency)
+                ? formatCurrency(latestSnapshot.nav)
                 : "No data"
             }
             detail={
@@ -241,7 +238,7 @@ export default async function AdminTodayPage() {
             label="Today's P/L"
             value={
               latestSnapshot
-                ? formatCurrency(todayPnl, latestSnapshot.currency)
+                ? formatCurrency(todayPnl)
                 : "No data"
             }
             detail="Latest reported daily profit and loss"
@@ -294,13 +291,10 @@ export default async function AdminTodayPage() {
                           {toNumber(position.quantity).toLocaleString("en-US")}
                         </td>
                         <td className="py-3 pr-4 font-mono text-zinc-300">
-                          {formatCurrency(position.entry_price, position.currency)}
+                          {formatCurrency(position.entry_price)}
                         </td>
                         <td className="py-3 pr-4 font-mono text-zinc-300">
-                          {formatCurrency(
-                            position.current_price,
-                            position.currency,
-                          )}
+                          {formatCurrency(position.current_price)}
                         </td>
                         <td className="py-3 font-mono text-amber-200">
                           {toNumber(position.risk_per_trade_percent).toFixed(2)}
@@ -391,13 +385,13 @@ export default async function AdminTodayPage() {
                       </td>
                       <td className="py-3 pr-4 text-zinc-300">{trade.side}</td>
                       <td className="py-3 pr-4 font-mono text-zinc-300">
-                        {formatCurrency(trade.price, trade.currency)}
+                        {formatCurrency(trade.price)}
                       </td>
                       <td className="py-3 pr-4 font-mono text-emerald-300">
                         {trade.realized_pnl === null ||
                         trade.realized_pnl === undefined
                           ? "-"
-                          : formatCurrency(trade.realized_pnl, trade.currency)}
+                          : formatCurrency(trade.realized_pnl)}
                       </td>
                       <td className="py-3 text-zinc-300">{trade.status}</td>
                     </tr>

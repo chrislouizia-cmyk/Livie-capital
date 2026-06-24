@@ -3,7 +3,7 @@ import type { PortfolioSnapshotRow } from "@/lib/dashboard/data";
 import { getPortfolioSnapshots } from "@/lib/supabase/queries";
 
 type EquityChartPoint = {
-  day: string;
+  date: string;
   value: number;
 };
 
@@ -29,7 +29,7 @@ function buildChartData(snapshots: PortfolioSnapshotRow[]): EquityChartPoint[] {
         new Date(second.snapshot_date).getTime(),
     )
     .map((snapshot) => ({
-      day: formatChartDate(snapshot.snapshot_date),
+      date: formatChartDate(snapshot.snapshot_date),
       value: toNumber(snapshot.nav),
     }));
 }

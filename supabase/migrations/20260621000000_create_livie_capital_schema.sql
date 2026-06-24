@@ -1,6 +1,6 @@
 create extension if not exists pgcrypto;
 
-create type currency_code as enum ('MXN', 'USD', 'FX');
+create type currency_code as enum ('USD');
 create type asset_category as enum ('Equity', 'Credit', 'Cash', 'Hedge');
 create type asset_region as enum ('US', 'Mexico', 'Global');
 create type position_direction as enum ('Long', 'Short');

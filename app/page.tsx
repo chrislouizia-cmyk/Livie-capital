@@ -8,7 +8,8 @@ import { FundMetricsLoading } from "@/app/components/FundMetrics";
 import InvestmentStrategy from "@/app/components/InvestmentStrategy";
 import OpenPositions from "@/app/components/OpenPositions";
 import PerformanceHistory from "@/app/components/PerformanceHistory";
-import PortfolioOverview from "@/app/components/PortfolioOverview";
+import { PortfolioOverviewFromSupabase } from "@/app/components/PortfolioOverview";
+import { PortfolioOverviewLoading } from "@/app/components/PortfolioOverview";
 import Reports from "@/app/components/Reports";
 import { ReportsLoading } from "@/app/components/Reports";
 import TradesTable from "@/app/components/TradesTable";
@@ -17,7 +18,9 @@ import { marketTape } from "@/data/portfolio";
 import { getDashboardData } from "@/lib/dashboard/data";
 
 function formatCompactCurrency(value: number): string {
-  return `$${(value / 1000000).toFixed(2)}M`;
+  return `$${value.toLocaleString("en-US", {
+    maximumFractionDigits: 0,
+  })} USD`;
 }
 
 function formatSignedPercent(value: number): string {
@@ -69,7 +72,7 @@ export default async function Home() {
     },
     {
       label: "Base",
-      value: latestSnapshot?.currency ?? "USD",
+      value: "USD",
       tone: "text-white",
     },
   ];
@@ -114,14 +117,9 @@ export default async function Home() {
           ))}
         </div>
 
-        <PortfolioOverview
-          portfolioSnapshot={dashboardData.latestSnapshot}
-          performanceMetrics={dashboardData.performanceMetrics}
-          errorMessage={
-            dashboardData.errors.portfolioSnapshots ??
-            dashboardData.errors.performanceMetrics
-          }
-        />
+        <Suspense fallback={<PortfolioOverviewLoading />}>
+          <PortfolioOverviewFromSupabase />
+        </Suspense>
 
         <div
           id="portfolio"

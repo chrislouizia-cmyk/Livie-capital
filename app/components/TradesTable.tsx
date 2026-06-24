@@ -130,7 +130,7 @@ export default async function TradesTable() {
             {errorMessage && (
               <tr>
                 <td colSpan={6} className="py-4 text-sm leading-6 text-zinc-400">
-                  Trades are unavailable right now.
+                  Trades are unavailable right now. {errorMessage}
                 </td>
               </tr>
             )}

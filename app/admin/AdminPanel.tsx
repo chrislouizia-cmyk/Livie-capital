@@ -197,7 +197,6 @@ export default function AdminPanel() {
         <Field label="NAV" name="nav" type="number" step="0.0001" />
         <SelectField label="Currency" name="currency">
           <option value="USD">USD</option>
-          <option value="FX">FX</option>
         </SelectField>
         <Field label="Daily P&L" name="daily_pnl" type="number" step="0.0001" />
         <Field
@@ -261,7 +260,6 @@ export default function AdminPanel() {
         <Field label="Price" name="price" type="number" step="0.00000001" />
         <SelectField label="Currency" name="currency">
           <option value="USD">USD</option>
-          <option value="FX">FX</option>
         </SelectField>
         <SelectField label="Status" name="status">
           <option value="Filled">Filled</option>
@@ -321,7 +319,6 @@ export default function AdminPanel() {
         />
         <SelectField label="Currency" name="currency">
           <option value="USD">USD</option>
-          <option value="FX">FX</option>
         </SelectField>
         <Field
           label="Risk per Trade %"

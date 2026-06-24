@@ -116,6 +116,10 @@ function getCalculatedMetric(label: string): PerformanceMetricRow | null {
 }
 
 function buildMetrics(performanceMetrics: PerformanceMetricRow[]) {
+  if (performanceMetrics.length === 0) {
+    return [];
+  }
+
   const metricsByLabel = new Map(
     performanceMetrics.map((metric) => [metric.label, metric]),
   );

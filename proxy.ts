@@ -5,7 +5,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin/login") {
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   let response = NextResponse.next({
@@ -43,7 +43,7 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return NextResponse.redirect(new URL("/admin/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   const { data: adminUser, error: adminError } = await supabase
@@ -54,7 +54,7 @@ export async function proxy(request: NextRequest) {
 
   if (adminError || !adminUser) {
     return NextResponse.redirect(
-      new URL("/admin/login?error=not-admin", request.url),
+      new URL("/login?error=not-admin", request.url),
     );
   }
 

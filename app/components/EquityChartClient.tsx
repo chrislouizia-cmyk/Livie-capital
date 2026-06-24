@@ -10,7 +10,7 @@ import {
 } from "recharts";
 
 type EquityChartPoint = {
-  day: string;
+  date: string;
   value: number;
 };
 
@@ -23,7 +23,7 @@ export default function EquityChartClient({
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <XAxis dataKey="day" />
+          <XAxis dataKey="date" />
           <YAxis />
 
           <Tooltip />

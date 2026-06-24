@@ -76,14 +76,11 @@ function toNumber(value: number | string | null | undefined): number {
   return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
-function formatCurrency(
-  value: number | string | null | undefined,
-  currency = "USD",
-): string {
-  return `${currency} ${toNumber(value).toLocaleString("en-US", {
+function formatCurrency(value: number | string | null | undefined): string {
+  return `$${toNumber(value).toLocaleString("en-US", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
-  })}`;
+  })} USD`;
 }
 
 function formatPercent(value: number | string | null | undefined): string {
@@ -235,7 +232,7 @@ export default async function GenerateReportPage() {
             label="Portfolio Value"
             value={
               latestSnapshot
-                ? formatCurrency(latestSnapshot.nav, latestSnapshot.currency)
+                ? formatCurrency(latestSnapshot.nav)
                 : "No data"
             }
             context="Latest NAV"
@@ -262,7 +259,7 @@ export default async function GenerateReportPage() {
           />
           <ReportMetric
             label="Report Currency"
-            value={latestSnapshot?.currency ?? "USD"}
+            value="USD"
             context="Base reporting currency"
           />
         </section>
@@ -294,7 +291,7 @@ export default async function GenerateReportPage() {
                     {formatPercent(asset.weight_percent)}
                   </p>
                   <p className="font-mono text-zinc-300 print:text-zinc-700">
-                    {formatCurrency(asset.market_value, asset.currency)}
+                    {formatCurrency(asset.market_value)}
                   </p>
                 </div>
               ))
@@ -345,13 +342,13 @@ export default async function GenerateReportPage() {
                         {trade.side}
                       </td>
                       <td className="py-3 pr-4 font-mono text-zinc-300 print:text-zinc-700">
-                        {formatCurrency(trade.price, trade.currency)}
+                        {formatCurrency(trade.price)}
                       </td>
                       <td className="py-3 pr-4 font-mono text-emerald-300 print:text-zinc-700">
                         {trade.realized_pnl === null ||
                         trade.realized_pnl === undefined
                           ? "-"
-                          : formatCurrency(trade.realized_pnl, trade.currency)}
+                          : formatCurrency(trade.realized_pnl)}
                       </td>
                       <td className="py-3 text-zinc-300 print:text-zinc-700">
                         {trade.status}

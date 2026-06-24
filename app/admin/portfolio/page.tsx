@@ -18,7 +18,7 @@ function formatCurrency(value: unknown): string {
     return "N/A";
   }
 
-  return `$${numericValue.toLocaleString("en-US")}`;
+  return `$${numericValue.toLocaleString("en-US")} USD`;
 }
 
 function DataPreview({
@@ -82,7 +82,7 @@ export default async function AdminPortfolioPage() {
               NAV
             </p>
             <p className="mt-3 font-mono text-2xl text-white">
-              {formatCurrency(snapshot.nav)} {snapshot.currency}
+              {formatCurrency(snapshot.nav)}
             </p>
           </div>
           <div className="rounded-md border border-white/[0.08] bg-black/30 p-4">

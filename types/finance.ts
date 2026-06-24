@@ -45,7 +45,7 @@ export type Position = {
   currentPrice: number;
   stopLoss: number;
   takeProfit: number;
-  currency: CurrencyCode | "FX";
+  currency: CurrencyCode;
   riskPerTradePercent: number;
 };
 
